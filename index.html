@@ -121,8 +121,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
   function link(i){var o={g:S.group,n:S.people.map(function(p){return p.name}),s:S.seed,i:i,b:S.budget,d:S.date},f=fixPair();if(f)o.f=f;return BASE+'#'+enc(o)}
   function msg(i){
     var p=S.people[i],g=S.group;
-    var subj='🎄 Foste adicionado ao Amigo Secreto'+(g?' – '+g:'');
-    var body='Olá '+p.name+'! 🎅\n\nFoste adicionado ao grupo de amigo secreto'+(g?' “'+g+'”':'')+'.\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
+    var subj='Ho! Ho! Ho! 🎅'+ p.name + ', descobre o teu Amigo Secreto!';
+    var body='Olá '+p.name+'! 🎅\n\n\n Foste adicionado ao grupo de amigo secreto'+(g?' “'+g+'”':'')+'.\n\n\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
     if(S.budget)body+='Orçamento: '+S.budget+'\n';
     if(S.date)body+='Troca de prendas: '+fmtDate(S.date)+'\n';
     body+='\nFeliz Natal! ✨';
@@ -146,7 +146,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
         '<div><label for="em">Email</label><input id="em" type="email" inputmode="email" autocomplete="off"></div></div>'+
         '<button class="big gold" id="add" type="button">Adicionar à lista</button><p class="err hidden" id="err"></p>'+
         '<ul class="people" id="ppl"></ul><p class="hint" id="cnt"></p></div>'+
-      '<div class="card"><h2>Só para o administrador</h2><p class="hint" style="margin:0 0 12px">Escolhe quem és e, se quiseres, com quem queres ficar. Os restantes continuam a ser sorteados ao acaso.</p><div class="two"><div><label for="me">Quem és tu?</label><select id="me"></select></div><div><label for="pk">Quero ficar com</label><select id="pk"></select></div></div></div>'+
+      // '<div class="card"><h2>Só para o administrador</h2><p class="hint" style="margin:0 0 12px">Escolhe quem és e, se quiseres, com quem queres ficar. Os restantes continuam a ser sorteados ao acaso.</p><div class="two"><div><label for="me">Quem és tu?</label><select id="me"></select></div><div><label for="pk">Quero ficar com</label><select id="pk"></select></div></div></div>'+
       '<div class="card"><h2>Detalhes do convite</h2><div class="two">'+
         '<div><label for="gp">Nome do grupo</label><input id="gp" placeholder="Ex.: Equipa Staffing" value="'+esc(S.group)+'"></div>'+
         '<div><label for="bg">Orçamento</label><input id="bg" placeholder="Ex.: 15 €" value="'+esc(S.budget)+'"></div></div>'+
