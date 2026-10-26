@@ -217,7 +217,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
   function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
   function links(){
     // var n=S.people.length,auto=!!(EMAILJS.service&&EMAILJS.template&&EMAILJS.key);
-    var auto = !!SCRIPT_URL;
+    var n=S.people.length, auto = !!SCRIPT_URL;
+   
     var done=Object.keys(auto?S.sentOk:S.opened).length;
     var warn=/^https?:/.test(BASE)?'':'<p class="err">Atenção: os links não têm um endereço válido. Abre o site pelo endereço do GitHub Pages.</p>';
     app.innerHTML=
