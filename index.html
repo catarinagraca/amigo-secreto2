@@ -86,7 +86,8 @@ button:disabled{opacity:.45;cursor:not-allowed}
   var URL_PUBLICO='https://catarinagraca.github.io/amigo-secreto2/';
   var BASE=URL_PUBLICO||location.href.split('#')[0];
   // Envio automático com EmailJS: preenche os 3 valores. Se ficarem vazios, aparecem os botões Gmail/Outlook.
-  var EMAILJS={service:'service_u3qtqbt',template:'template_t61mdk7',key:'6gDVJ2nZNyOCUcV1l'};
+  // var EMAILJS={service:'service_u3qtqbt',template:'template_t61mdk7',key:'6gDVJ2nZNyOCUcV1l'};
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzp0lcbWiLICMd-zqwr9IVDVwz8A1zUJhrwb07bgag0X1Slj_urHWIw-EjO1KLCok039g/exec";
   var app=document.getElementById('app'),KEY='amigo-secreto-natal-v2';
   var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},sentOk:{},meName:'',pickName:'',view:'setup'};
   var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -191,20 +192,32 @@ button:disabled{opacity:.45;cursor:not-allowed}
     me.onchange=function(){S.meName=me.value;if(S.pickName===S.meName)S.pickName='';save();fillSel()};
     pk.onchange=function(){S.pickName=pk.value;save()};
   }
+  // function sendOne(i){
+  //   var m=msg(i),p=S.people[i];
+  //   return fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+  //     service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,
+  //     template_params:{to_email:p.email,to_name:p.name,subject:m.subj,link:link(i),
+  //       group_text:S.group?' “'+S.group+'”':'',budget_line:S.budget?'Orçamento: '+S.budget:'',date_line:S.date?'Troca de prendas: '+fmtDate(S.date):''}
+  //   })}).then(function(r){return r.text().then(function(t){
+  //     if(!r.ok)throw new Error(t||('erro '+r.status));
+  //     S.sentOk[i]=1;save();
+  //   })});
+  // }
   function sendOne(i){
-    var m=msg(i),p=S.people[i];
-    return fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,
-      template_params:{to_email:p.email,to_name:p.name,subject:m.subj,link:link(i),
-        group_text:S.group?' “'+S.group+'”':'',budget_line:S.budget?'Orçamento: '+S.budget:'',date_line:S.date?'Troca de prendas: '+fmtDate(S.date):''}
-    })}).then(function(r){return r.text().then(function(t){
-      if(!r.ok)throw new Error(t||('erro '+r.status));
-      S.sentOk[i]=1;save();
-    })});
-  }
+  var m = msg(i), p = S.people[i];
+  return fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ to: p.email, subject: m.subj, body: m.body })
+  }).then(function(r){
+    if(!r.ok && r.type !== 'opaque') throw new Error('erro de rede');
+    S.sentOk[i]=1; save();
+  });
+}
   function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
   function links(){
-    var n=S.people.length,auto=!!(EMAILJS.service&&EMAILJS.template&&EMAILJS.key);
+    // var n=S.people.length,auto=!!(EMAILJS.service&&EMAILJS.template&&EMAILJS.key);
+    var auto = !!SCRIPT_URL;
     var done=Object.keys(auto?S.sentOk:S.opened).length;
     var warn=/^https?:/.test(BASE)?'':'<p class="err">Atenção: os links não têm um endereço válido. Abre o site pelo endereço do GitHub Pages.</p>';
     app.innerHTML=
