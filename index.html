@@ -83,7 +83,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 (function(){
   // Endereço onde o site vai estar online, para os links dos convites (ex.: 'https://catarina.github.io/amigo-secreto/').
   // Se ficar vazio, usa o endereço da página aberta (serve para testar no teu computador).
-  var URL_PUBLICO='';
+  var URL_PUBLICO='https://catarinagraca.github.io/amigo-secreto2/';
   var BASE=URL_PUBLICO||location.href.split('#')[0];
   var app=document.getElementById('app'),KEY='amigo-secreto-natal-v2';
   var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},view:'setup'};
@@ -172,7 +172,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
     app.innerHTML=
       '<div class="ribbon"></div><div class="top"><h1 style="font-size:clamp(2rem,8vw,3rem)"><em>Convites prontos</em>Enviar links</h1><button class="ghost" id="bk" type="button">Editar lista</button></div>'+
       '<p class="lead" style="margin-top:0">Cada pessoa recebe um link pessoal. Ao abri-lo, vê o sorteio com suspense e descobre quem lhe saiu. '+(done?'Abriste '+done+' de '+n+' emails.':'')+'</p>'+
-      '<div class="card"><p class="note">Tu não vês quem tirou quem. Se alterares a lista, os links mudam e os antigos deixam de valer, por isso envia tudo só depois de a lista estar fechada.</p>'+
+      '<div class="card">'+(/^https?:/.test(BASE)?'':'<p class="err">Atenção: os links não têm um endereço válido. Abre o site pelo endereço do GitHub Pages.</p>')+'<p class="note">Tu não vês quem tirou quem. Se alterares a lista, os links mudam e os antigos deixam de valer, por isso envia tudo só depois de a lista estar fechada.</p>'+
       '<ul class="people">'+S.people.map(function(p,i){
         return '<li><div class="who"><strong>'+esc(p.name)+'</strong><small>'+esc(p.email)+'</small></div>'+
           (S.opened[i]?'<span class="sent">Email aberto ✓</span>':'')+
