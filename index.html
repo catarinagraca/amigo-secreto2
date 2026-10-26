@@ -121,7 +121,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   function link(i){var o={g:S.group,n:S.people.map(function(p){return p.name}),s:S.seed,i:i,b:S.budget,d:S.date},f=fixPair();if(f)o.f=f;return BASE+'#'+enc(o)}
   function msg(i){
     var p=S.people[i],g=S.group;
-    var subj='Ho! Ho! Ho! 🎅'+ p.name + ', descobre o teu Amigo Secreto!';
+    var subj='Ho! Ho! Ho! 🎅';
     var body='Olá '+p.name+'! 🎅\n\n\n Foste adicionado ao grupo de amigo secreto'+(g?' “'+g+'”':'')+'.\n\n\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
     if(S.budget)body+='Orçamento: '+S.budget+'\n';
     if(S.date)body+='Troca de prendas: '+fmtDate(S.date)+'\n';
