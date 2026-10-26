@@ -122,7 +122,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   function msg(i){
     var p=S.people[i],g=S.group;
     var subj='Ho! Ho! Ho! 🎅';
-    var body='Olá '+p.name+'! 🎅\n\n\n Foste adicionado ao grupo de amigo secreto'+(g?' “'+g+'”':'')+'.\n\n\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
+    var body='Olá '+p.name+'! 🎅\n\nFoste adicionado ao grupo de amigo secreto'+(g?' “'+g+'”':'')+'.\n\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
     if(S.budget)body+='Orçamento: '+S.budget+'\n';
     if(S.date)body+='Troca de prendas: '+fmtDate(S.date)+'\n';
     body+='\nFeliz Natal! ✨';
