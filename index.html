@@ -41,7 +41,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .people .who{flex:1;min-width:140px}
 .people .who small{display:block;color:var(--muted);overflow-wrap:anywhere}
 .people .x{background:none;color:var(--muted);font-size:1.3rem;padding:2px 10px}
-.people .act{display:flex;gap:6px}
+.people .act{display:flex;flex-wrap:wrap;gap:6px}
 .people .act .btn,.people .act button{padding:8px 12px;font-size:.88rem}
 .hint{color:var(--muted);font-size:.9rem;margin:10px 0 0}
 .err{color:var(--red);font-weight:500;margin:8px 0 0}
@@ -108,15 +108,18 @@ button:disabled{opacity:.45;cursor:not-allowed}
   function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
   function dec(c){try{c=c.replace(/-/g,'+').replace(/_/g,'/');while(c.length%4)c+='=';var o=JSON.parse(decodeURIComponent(escape(atob(c))));return o&&Array.isArray(o.n)&&typeof o.i==='number'&&o.n[o.i]!==undefined?o:null}catch(e){return null}}
   function link(i){return BASE+'#'+enc({g:S.group,n:S.people.map(function(p){return p.name}),s:S.seed,i:i,b:S.budget,d:S.date})}
-  function mail(i){
-    var p=S.people[i],g=S.group||'Amigo Secreto';
-    var subj='🎄 Foste adicionado ao Amigo Secreto – '+g;
-    var body='Olá '+p.name+'! 🎅\n\nFoste adicionado ao grupo de amigo secreto “'+g+'”.\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
+  function msg(i){
+    var p=S.people[i],g=S.group;
+    var subj='🎄 Foste adicionado ao Amigo Secreto'+(g?' – '+g:'');
+    var body='Olá '+p.name+'! 🎅\n\nFoste adicionado ao grupo de amigo secreto'+(g?' “'+g+'”':'')+'.\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
     if(S.budget)body+='Orçamento: '+S.budget+'\n';
     if(S.date)body+='Troca de prendas: '+fmtDate(S.date)+'\n';
     body+='\nFeliz Natal! ✨';
-    return 'mailto:'+encodeURIComponent(p.email).replace(/%40/g,'@')+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    return {to:p.email,subj:subj,body:body};
   }
+  function mail(i){var m=msg(i);return 'mailto:'+encodeURIComponent(m.to).replace(/%40/g,'@')+'?subject='+encodeURIComponent(m.subj)+'&body='+encodeURIComponent(m.body)}
+  function gmail(i){var m=msg(i);return 'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(m.to)+'&su='+encodeURIComponent(m.subj)+'&body='+encodeURIComponent(m.body)}
+  function outlook(i){var m=msg(i);return 'https://outlook.live.com/mail/0/deeplink/compose?to='+encodeURIComponent(m.to)+'&subject='+encodeURIComponent(m.subj)+'&body='+encodeURIComponent(m.body)}
   function copy(t,b){
     function ok(){var o=b.textContent;b.textContent='Copiado ✓';setTimeout(function(){b.textContent=o},1500)}
     try{navigator.clipboard.writeText(t).then(ok,function(){window.prompt('Copia o link:',t)})}catch(e){window.prompt('Copia o link:',t)}
@@ -173,7 +176,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
       '<ul class="people">'+S.people.map(function(p,i){
         return '<li><div class="who"><strong>'+esc(p.name)+'</strong><small>'+esc(p.email)+'</small></div>'+
           (S.opened[i]?'<span class="sent">Email aberto ✓</span>':'')+
-          '<div class="act"><a class="btn'+(S.opened[i]?' ghost':'')+'" data-i="'+i+'" href="'+esc(mail(i))+'" target="_blank" rel="noopener">Enviar email</a><button class="ghost cp" data-i="'+i+'" type="button">Copiar link</button></div></li>';
+          '<div class="act"><a class="btn'+(S.opened[i]?' ghost':'')+'" data-i="'+i+'" href="'+esc(gmail(i))+'" target="_blank" rel="noopener">Gmail</a>'+
+          '<a class="btn ghost" data-i="'+i+'" href="'+esc(outlook(i))+'" target="_blank" rel="noopener">Outlook</a>'+
+          '<a class="btn ghost" data-i="'+i+'" href="'+esc(mail(i))+'">Outro</a>'+
+          '<button class="ghost cp" data-i="'+i+'" type="button">Copiar link</button></div></li>';
       }).join('')+'</ul></div>';
     app.querySelectorAll('a.btn').forEach(function(a){a.addEventListener('click',function(){S.opened[a.dataset.i]=1;save();setTimeout(links,300)})});
     app.querySelectorAll('.cp').forEach(function(b){b.onclick=function(){copy(link(+b.dataset.i),b)}});
