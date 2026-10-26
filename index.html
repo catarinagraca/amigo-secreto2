@@ -85,16 +85,18 @@ button:disabled{opacity:.45;cursor:not-allowed}
   // Se ficar vazio, usa o endereço da página aberta (serve para testar no teu computador).
   var URL_PUBLICO='https://catarinagraca.github.io/amigo-secreto2/';
   var BASE=URL_PUBLICO||location.href.split('#')[0];
+  // Envio automático com EmailJS: preenche os 3 valores. Se ficarem vazios, aparecem os botões Gmail/Outlook.
+  var EMAILJS={service:'service_u3qtqbt',template:'template_t61mdk7',key:'6gDVJ2nZNyOCUcV1l'};
   var app=document.getElementById('app'),KEY='amigo-secreto-natal-v2';
-  var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},meName:'',pickName:'',view:'setup'};
+  var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},sentOk:{},meName:'',pickName:'',view:'setup'};
   var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var sn=document.getElementById('snow'),h='';
   for(var i=0;i<28;i++){h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;--dx:'+((Math.random()*80-40)|0)+'px;width:'+(3+Math.random()*5).toFixed(1)+'px;height:'+(3+Math.random()*5).toFixed(1)+'px;animation-duration:'+(9+Math.random()*12).toFixed(1)+'s;animation-delay:-'+(Math.random()*20).toFixed(1)+'s"></i>'}
   sn.innerHTML=h;
 
-  function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&Array.isArray(o.people)){['people','group','budget','date','seed','sig','opened','meName','pickName'].forEach(function(k){if(o[k]!==undefined)S[k]=o[k]})}}}catch(e){}}
-  function save(){try{localStorage.setItem(KEY,JSON.stringify({people:S.people,group:S.group,budget:S.budget,date:S.date,seed:S.seed,sig:S.sig,opened:S.opened,meName:S.meName,pickName:S.pickName}))}catch(e){}}
+  function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&Array.isArray(o.people)){['people','group','budget','date','seed','sig','opened','sentOk','meName','pickName'].forEach(function(k){if(o[k]!==undefined)S[k]=o[k]})}}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({people:S.people,group:S.group,budget:S.budget,date:S.date,seed:S.seed,sig:S.sig,opened:S.opened,sentOk:S.sentOk,meName:S.meName,pickName:S.pickName}))}catch(e){}}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function fmtDate(d){var p=(d||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d}
 
@@ -165,7 +167,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
     [['gp','group'],['bg','budget'],['dt','date']].forEach(function(f){document.getElementById(f[0]).oninput=function(e){S[f[1]]=e.target.value;save()}});
     document.getElementById('go').onclick=function(){
       var sig=JSON.stringify([S.people.map(function(p){return p.name}),fixPair()]);
-      if(!S.seed||S.sig!==sig){S.seed=(Math.random()*4294967295)>>>0||1;S.sig=sig;S.opened={}}
+      if(!S.seed||S.sig!==sig){S.seed=(Math.random()*4294967295)>>>0||1;S.sig=sig;S.opened={};S.sentOk={}}
       save();S.view='links';render();window.scrollTo(0,0);
     };
   }
@@ -189,15 +191,33 @@ button:disabled{opacity:.45;cursor:not-allowed}
     me.onchange=function(){S.meName=me.value;if(S.pickName===S.meName)S.pickName='';save();fillSel()};
     pk.onchange=function(){S.pickName=pk.value;save()};
   }
+  function sendOne(i){
+    var m=msg(i),p=S.people[i];
+    return fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,
+      template_params:{to_email:p.email,to_name:p.name,subject:m.subj,link:link(i),
+        group_text:S.group?' “'+S.group+'”':'',budget_line:S.budget?'Orçamento: '+S.budget:'',date_line:S.date?'Troca de prendas: '+fmtDate(S.date):''}
+    })}).then(function(r){return r.text().then(function(t){
+      if(!r.ok)throw new Error(t||('erro '+r.status));
+      S.sentOk[i]=1;save();
+    })});
+  }
+  function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
   function links(){
-    var done=Object.keys(S.opened).length,n=S.people.length;
+    var n=S.people.length,auto=!!(EMAILJS.service&&EMAILJS.template&&EMAILJS.key);
+    var done=Object.keys(auto?S.sentOk:S.opened).length;
+    var warn=/^https?:/.test(BASE)?'':'<p class="err">Atenção: os links não têm um endereço válido. Abre o site pelo endereço do GitHub Pages.</p>';
     app.innerHTML=
       '<div class="ribbon"></div><div class="top"><h1 style="font-size:clamp(2rem,8vw,3rem)"><em>Convites prontos</em>Enviar links</h1><button class="ghost" id="bk" type="button">Editar lista</button></div>'+
-      '<p class="lead" style="margin-top:0">Cada pessoa recebe um link pessoal. Ao abri-lo, vê o sorteio com suspense e descobre quem lhe saiu. '+(done?'Abriste '+done+' de '+n+' emails.':'')+'</p>'+
-      '<div class="card">'+(/^https?:/.test(BASE)?'':'<p class="err">Atenção: os links não têm um endereço válido. Abre o site pelo endereço do GitHub Pages.</p>')+'<p class="note">Tu não vês quem tirou quem. Se alterares a lista, os links mudam e os antigos deixam de valer, por isso envia tudo só depois de a lista estar fechada.</p>'+
+      '<p class="lead" style="margin-top:0">Cada pessoa recebe um link pessoal. Ao abri-lo, vê o sorteio com suspense e descobre quem lhe saiu. '+(done?(auto?'Enviados: ':'Emails abertos: ')+done+' de '+n+'.':'')+'</p>'+
+      '<div class="card">'+warn+'<p class="note">Tu não vês quem tirou quem. Se alterares a lista, os links mudam e os antigos deixam de valer, por isso envia tudo só depois de a lista estar fechada.</p>'+
+      (auto?'<button class="big gold" id="all" type="button"'+(done===n?' disabled':'')+'>'+(done===n?'Todos enviados ✓':'Enviar a todos ('+(n-done)+' por enviar)')+'</button><p class="err hidden" id="serr"></p>'
+           :'<p class="hint" style="margin:0 0 6px">Para enviar sem abrir o email de cada pessoa, liga o EmailJS (variável EMAILJS no código).</p>')+
       '<ul class="people">'+S.people.map(function(p,i){
-        return '<li><div class="who"><strong>'+esc(p.name)+'</strong><small>'+esc(p.email)+'</small></div>'+
-          (S.opened[i]?'<span class="sent">Email aberto ✓</span>':'')+
+        var who='<div class="who"><strong>'+esc(p.name)+'</strong><small>'+esc(p.email)+'</small></div>';
+        if(auto)return '<li>'+who+(S.sentOk[i]?'<span class="sent">Enviado ✓</span>':'')+
+          '<div class="act"><button class="send'+(S.sentOk[i]?' ghost':'')+'" data-i="'+i+'" type="button">'+(S.sentOk[i]?'Enviar de novo':'Enviar')+'</button><button class="ghost cp" data-i="'+i+'" type="button">Copiar link</button></div></li>';
+        return '<li>'+who+(S.opened[i]?'<span class="sent">Email aberto ✓</span>':'')+
           '<div class="act"><a class="btn'+(S.opened[i]?' ghost':'')+'" data-i="'+i+'" href="'+esc(gmail(i))+'" target="_blank" rel="noopener">Gmail</a>'+
           '<a class="btn ghost" data-i="'+i+'" href="'+esc(outlook(i))+'" target="_blank" rel="noopener">Outlook</a>'+
           '<a class="btn ghost" data-i="'+i+'" href="'+esc(mail(i))+'">Outro</a>'+
@@ -206,6 +226,24 @@ button:disabled{opacity:.45;cursor:not-allowed}
     app.querySelectorAll('a.btn').forEach(function(a){a.addEventListener('click',function(){S.opened[a.dataset.i]=1;save();setTimeout(links,300)})});
     app.querySelectorAll('.cp').forEach(function(b){b.onclick=function(){copy(link(+b.dataset.i),b)}});
     document.getElementById('bk').onclick=function(){S.view='setup';render()};
+    if(!auto)return;
+    var serr=document.getElementById('serr');
+    function fail(i,e){serr.textContent='Não foi possível enviar a '+S.people[i].name+': '+(e&&e.message?e.message:'sem ligação à internet')+'. Confirma os 3 valores do EmailJS e tenta de novo.';serr.classList.remove('hidden')}
+    app.querySelectorAll('.send').forEach(function(b){b.onclick=function(){
+      var i=+b.dataset.i;b.disabled=true;b.textContent='A enviar…';serr.classList.add('hidden');
+      sendOne(i).then(links,function(e){fail(i,e);b.disabled=false;b.textContent='Enviar'});
+    }});
+    document.getElementById('all').onclick=function(){
+      var todo=[];S.people.forEach(function(p,i){if(!S.sentOk[i])todo.push(i)});
+      if(!todo.length||!confirm('Enviar '+todo.length+' emails agora? Cada email conta para o limite mensal do EmailJS (200 no plano gratuito).'))return;
+      var btn=this;btn.disabled=true;serr.classList.add('hidden');
+      var k=0;
+      (function next(){
+        if(k>=todo.length){links();return}
+        btn.textContent='A enviar '+(k+1)+' de '+todo.length+'…';
+        sendOne(todo[k]).then(function(){k++;return wait(1200)}).then(next,function(e){fail(todo[k],e);btn.disabled=false;btn.textContent='Tentar de novo';app.querySelectorAll('.send').forEach(function(x){x.disabled=false})});
+      })();
+    };
   }
 
   /* ---------- convidado ---------- */
