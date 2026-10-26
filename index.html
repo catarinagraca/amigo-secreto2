@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Amigo Secreto de Natal</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,900;1,9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12382F;--bg2:#0B241E;--card:#F6F9FA;--ink:#15241F;--muted:#5A6B66;--line:#D6E0DD;
+  --red:#B3262E;--red-ink:#fff;--gold:#E8B64C;--snow:#fff;--field:#fff;--tag:#FFF4D6;--tag-ink:#33260A;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0C2520;--bg2:#06130F;--card:#14302A;--ink:#EAF3F0;--muted:#9DB5AE;--line:#27463F;--red:#D8434B;--field:#0E211C}
+}
+:root[data-theme="dark"]{--bg:#0C2520;--bg2:#06130F;--card:#14302A;--ink:#EAF3F0;--muted:#9DB5AE;--line:#27463F;--red:#D8434B;--field:#0E211C}
+html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg2)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;color:var(--snow);font:16px/1.55 'DM Sans',system-ui,sans-serif;
+  background:radial-gradient(1200px 500px at 50% -10%,var(--bg) 0%,var(--bg2) 70%) fixed}
+main{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:34px 18px 70px}
+h1,h2{font-family:'Fraunces',Georgia,serif;margin:0}
+h1{font-size:clamp(2.6rem,11vw,4.4rem);line-height:.95;font-weight:900;letter-spacing:-.03em}
+h1 em{display:block;font-style:italic;font-weight:600;color:var(--gold);font-size:.62em;letter-spacing:0;margin-bottom:6px}
+h2{font-size:1.35rem;font-weight:600;margin-bottom:12px;color:var(--ink)}
+.lead{color:#CFE2DC;max-width:44ch;margin:16px 0 26px}
+.card{background:var(--card);color:var(--ink);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+label{display:block;font-weight:500;font-size:.9rem;margin-bottom:5px}
+input{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+input:focus-visible,button:focus-visible,a.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+button,a.btn{display:inline-block;font:inherit;font-weight:700;text-align:center;text-decoration:none;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;background:var(--red);color:var(--red-ink)}
+button.ghost,a.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+button.gold{background:var(--gold);color:#2B2005}
+button.big{width:100%;padding:16px;font-size:1.1rem;margin-top:6px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.people{list-style:none;margin:14px 0 0;padding:0}
+.people li{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+.people .who{flex:1;min-width:140px}
+.people .who small{display:block;color:var(--muted);overflow-wrap:anywhere}
+.people .x{background:none;color:var(--muted);font-size:1.3rem;padding:2px 10px}
+.people .act{display:flex;gap:6px}
+.people .act .btn,.people .act button{padding:8px 12px;font-size:.88rem}
+.hint{color:var(--muted);font-size:.9rem;margin:10px 0 0}
+.err{color:var(--red);font-weight:500;margin:8px 0 0}
+.sent{color:var(--muted);font-size:.85rem;font-weight:500}
+.note{border-left:4px solid var(--gold);padding:2px 0 2px 12px;margin:0 0 14px;color:var(--ink);font-size:.93rem}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}
+.top button.ghost{color:#fff;border-color:rgba(255,255,255,.35)}
+.hidden{display:none!important}
+.snow{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.snow i{position:absolute;top:-12px;border-radius:50%;background:#fff;opacity:.8;animation:fall linear infinite}
+@keyframes fall{to{transform:translate3d(var(--dx),110vh,0)}}
+.ribbon{height:10px;border-radius:99px;margin:0 0 22px;background:repeating-linear-gradient(90deg,var(--red) 0 22px,var(--gold) 22px 28px,#fff 28px 34px,var(--gold) 34px 40px)}
+
+/* sorteio */
+.stage{text-align:center;padding:10px 0}
+.gift{font-size:5rem;line-height:1;display:inline-block;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
+.gift.shake{animation:shake .5s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg) scale(1.05)}40%{transform:rotate(8deg)}60%{transform:rotate(-6deg) scale(1.05)}80%{transform:rotate(5deg)}}
+.slot{margin:22px auto 10px;max-width:420px;min-height:120px;display:flex;align-items:center;justify-content:center;padding:14px 18px;border-radius:18px;background:var(--bg2);border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(232,182,76,.18),0 0 40px rgba(232,182,76,.25) inset}
+.slot span{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(1.9rem,9vw,3rem);line-height:1.05;overflow-wrap:anywhere;color:#fff}
+.slot.fast span{filter:blur(1.2px)}
+.status{min-height:1.6em;color:var(--gold);font-weight:500;letter-spacing:.01em}
+.tag{position:relative;background:var(--tag);color:var(--tag-ink);border-radius:8px 8px 20px 20px;padding:46px 22px 28px;text-align:center;margin:10px 0 18px;box-shadow:0 0 0 3px var(--gold) inset,0 14px 34px rgba(0,0,0,.35);animation:drop .7s cubic-bezier(.2,1.3,.4,1)}
+.tag::before{content:"";position:absolute;top:16px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--bg2);box-shadow:0 0 0 3px var(--gold)}
+.tag .for{opacity:.8}
+.tag .who{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2.2rem,11vw,3.6rem);line-height:1.02;margin:6px 0 12px;overflow-wrap:anywhere;color:var(--red)}
+.tag .meta{font-size:.95rem}
+@keyframes drop{from{transform:translateY(-40px) rotate(-4deg) scale(.7);opacity:0}to{transform:none;opacity:1}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:9px;height:14px;animation:cf linear forwards}
+@keyframes cf{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--rot))}}
+@media (prefers-reduced-motion:reduce){.snow,.confetti{display:none}.gift.shake,.tag{animation:none}.slot.fast span{filter:none}}
+</style>
+</head>
+<body>
+<div class="snow" id="snow" aria-hidden="true"></div>
+<main id="app"></main>
+<script>
+(function(){
+  // Endereço onde o site vai estar online, para os links dos convites (ex.: 'https://catarina.github.io/amigo-secreto/').
+  // Se ficar vazio, usa o endereço da página aberta (serve para testar no teu computador).
+  var URL_PUBLICO='';
+  var BASE=URL_PUBLICO||location.href.split('#')[0];
+  var app=document.getElementById('app'),KEY='amigo-secreto-natal-v2';
+  var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},view:'setup'};
+  var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var sn=document.getElementById('snow'),h='';
+  for(var i=0;i<28;i++){h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;--dx:'+((Math.random()*80-40)|0)+'px;width:'+(3+Math.random()*5).toFixed(1)+'px;height:'+(3+Math.random()*5).toFixed(1)+'px;animation-duration:'+(9+Math.random()*12).toFixed(1)+'s;animation-delay:-'+(Math.random()*20).toFixed(1)+'s"></i>'}
+  sn.innerHTML=h;
+
+  function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&Array.isArray(o.people)){['people','group','budget','date','seed','sig','opened'].forEach(function(k){if(o[k]!==undefined)S[k]=o[k]})}}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({people:S.people,group:S.group,budget:S.budget,date:S.date,seed:S.seed,sig:S.sig,opened:S.opened}))}catch(e){}}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function fmtDate(d){var p=(d||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d}
+
+  // sorteio determinístico: mesma semente + mesmos nomes = mesmo resultado para todos
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  function perm(n,seed){ // uma única volta: ninguém tira o próprio nome
+    var r=rng(seed),a=[],i,j,t;for(i=0;i<n;i++)a.push(i);
+    for(i=n-1;i>0;i--){j=Math.floor(r()*i);t=a[i];a[i]=a[j];a[j]=t}
+    var m=[];for(i=0;i<n;i++)m[a[i]]=a[(i+1)%n];return m;
+  }
+  function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+  function dec(c){try{c=c.replace(/-/g,'+').replace(/_/g,'/');while(c.length%4)c+='=';var o=JSON.parse(decodeURIComponent(escape(atob(c))));return o&&Array.isArray(o.n)&&typeof o.i==='number'&&o.n[o.i]!==undefined?o:null}catch(e){return null}}
+  function link(i){return BASE+'#'+enc({g:S.group,n:S.people.map(function(p){return p.name}),s:S.seed,i:i,b:S.budget,d:S.date})}
+  function mail(i){
+    var p=S.people[i],g=S.group||'Amigo Secreto';
+    var subj='🎄 Foste adicionado ao Amigo Secreto – '+g;
+    var body='Olá '+p.name+'! 🎅\n\nFoste adicionado ao grupo de amigo secreto “'+g+'”.\n\nAbre este link para sortear e descobrir quem te saiu (é segredo!):\n\n'+link(i)+'\n\n';
+    if(S.budget)body+='Orçamento: '+S.budget+'\n';
+    if(S.date)body+='Troca de prendas: '+fmtDate(S.date)+'\n';
+    body+='\nFeliz Natal! ✨';
+    return 'mailto:'+encodeURIComponent(p.email).replace(/%40/g,'@')+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  }
+  function copy(t,b){
+    function ok(){var o=b.textContent;b.textContent='Copiado ✓';setTimeout(function(){b.textContent=o},1500)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){window.prompt('Copia o link:',t)})}catch(e){window.prompt('Copia o link:',t)}
+  }
+
+  /* ---------- organizador ---------- */
+  function setup(){
+    app.innerHTML=
+      '<div class="ribbon"></div><h1><em>Natal da equipa</em>Amigo Secreto</h1>'+
+      '<p class="lead">Junta a equipa e envia um convite a cada pessoa. O sorteio só acontece quando cada uma abrir o seu link, e tu também não vês o resultado.</p>'+
+      '<div class="card"><h2>Quem participa</h2><div class="two">'+
+        '<div><label for="nm">Nome</label><input id="nm" autocomplete="off"></div>'+
+        '<div><label for="em">Email</label><input id="em" type="email" inputmode="email" autocomplete="off"></div></div>'+
+        '<button class="big gold" id="add" type="button">Adicionar à lista</button><p class="err hidden" id="err"></p>'+
+        '<ul class="people" id="ppl"></ul><p class="hint" id="cnt"></p></div>'+
+      '<div class="card"><h2>Detalhes do convite</h2><div class="two">'+
+        '<div><label for="gp">Nome do grupo</label><input id="gp" placeholder="Ex.: Equipa Staffing" value="'+esc(S.group)+'"></div>'+
+        '<div><label for="bg">Orçamento</label><input id="bg" placeholder="Ex.: 15 €" value="'+esc(S.budget)+'"></div></div>'+
+        '<div style="margin-top:10px"><label for="dt">Data da troca de prendas</label><input id="dt" type="date" value="'+esc(S.date)+'"></div></div>'+
+      '<button class="big" id="go" type="button" disabled>Criar convites 🎁</button>';
+    people();
+    function add(){
+      var n=document.getElementById('nm').value.trim().replace(/\s+/g,' '),e=document.getElementById('em').value.trim(),er=document.getElementById('err'),m='';
+      if(!n)m='Escreve o nome.';
+      else if(S.people.some(function(p){return p.name.toLowerCase()===n.toLowerCase()}))m='Já existe alguém com esse nome. Acrescenta uma inicial do apelido.';
+      else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))m='Escreve um email válido.';
+      else if(S.people.some(function(p){return p.email.toLowerCase()===e.toLowerCase()}))m='Esse email já está na lista.';
+      if(m){er.textContent=m;er.classList.remove('hidden');return}
+      er.classList.add('hidden');S.people.push({name:n,email:e});save();
+      document.getElementById('nm').value='';document.getElementById('em').value='';people();document.getElementById('nm').focus();
+    }
+    document.getElementById('add').onclick=add;
+    document.getElementById('em').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();add()}};
+    [['gp','group'],['bg','budget'],['dt','date']].forEach(function(f){document.getElementById(f[0]).oninput=function(e){S[f[1]]=e.target.value;save()}});
+    document.getElementById('go').onclick=function(){
+      var sig=JSON.stringify(S.people.map(function(p){return p.name}));
+      if(!S.seed||S.sig!==sig){S.seed=(Math.random()*4294967295)>>>0||1;S.sig=sig;S.opened={}}
+      save();S.view='links';render();window.scrollTo(0,0);
+    };
+  }
+  function people(){
+    var l=document.getElementById('ppl'),n=S.people.length;
+    l.innerHTML=S.people.map(function(p,i){return '<li><div class="who"><strong>'+esc(p.name)+'</strong><small>'+esc(p.email)+'</small></div><button class="x" type="button" data-i="'+i+'" aria-label="Remover '+esc(p.name)+'">×</button></li>'}).join('');
+    l.querySelectorAll('.x').forEach(function(b){b.onclick=function(){S.people.splice(+b.dataset.i,1);save();people()}});
+    document.getElementById('cnt').textContent=n+(n===1?' participante':' participantes')+(n<3?'. São precisas pelo menos 3 pessoas.':'.');
+    document.getElementById('go').disabled=n<3;
+  }
+  function links(){
+    var done=Object.keys(S.opened).length,n=S.people.length;
+    app.innerHTML=
+      '<div class="ribbon"></div><div class="top"><h1 style="font-size:clamp(2rem,8vw,3rem)"><em>Convites prontos</em>Enviar links</h1><button class="ghost" id="bk" type="button">Editar lista</button></div>'+
+      '<p class="lead" style="margin-top:0">Cada pessoa recebe um link pessoal. Ao abri-lo, vê o sorteio com suspense e descobre quem lhe saiu. '+(done?'Abriste '+done+' de '+n+' emails.':'')+'</p>'+
+      '<div class="card"><p class="note">Tu não vês quem tirou quem. Se alterares a lista, os links mudam e os antigos deixam de valer, por isso envia tudo só depois de a lista estar fechada.</p>'+
+      '<ul class="people">'+S.people.map(function(p,i){
+        return '<li><div class="who"><strong>'+esc(p.name)+'</strong><small>'+esc(p.email)+'</small></div>'+
+          (S.opened[i]?'<span class="sent">Email aberto ✓</span>':'')+
+          '<div class="act"><a class="btn'+(S.opened[i]?' ghost':'')+'" data-i="'+i+'" href="'+esc(mail(i))+'" target="_blank" rel="noopener">Enviar email</a><button class="ghost cp" data-i="'+i+'" type="button">Copiar link</button></div></li>';
+      }).join('')+'</ul></div>';
+    app.querySelectorAll('a.btn').forEach(function(a){a.addEventListener('click',function(){S.opened[a.dataset.i]=1;save();setTimeout(links,300)})});
+    app.querySelectorAll('.cp').forEach(function(b){b.onclick=function(){copy(link(+b.dataset.i),b)}});
+    document.getElementById('bk').onclick=function(){S.view='setup';render()};
+  }
+
+  /* ---------- convidado ---------- */
+  function guest(o){
+    var me=o.n[o.i],p=perm(o.n.length,o.s),target=o.n[p[o.i]],pool=o.n.filter(function(x,k){return k!==o.i});
+    function intro(){
+      app.innerHTML=
+        '<div class="ribbon"></div><h1><em>'+esc(o.g||'Natal da equipa')+'</em>Amigo Secreto</h1>'+
+        '<p class="lead">Olá, '+esc(me)+'! 🎅 Foste adicionado a este grupo. Quando carregares no botão, todos os nomes vão passar pela roleta e um só será o teu.</p>'+
+        '<div class="stage"><div class="gift" aria-hidden="true">🎁</div></div>'+
+        '<button class="big gold" id="draw" type="button">Sortear o meu amigo secreto</button>';
+      document.getElementById('draw').onclick=spin;
+    }
+    function spin(){
+      app.innerHTML=
+        '<div class="ribbon"></div><div class="stage"><div class="gift shake" aria-hidden="true">🎁</div>'+
+        '<div class="slot fast" id="slot" aria-live="off"><span id="nm">…</span></div><p class="status" id="st" aria-live="polite">A embrulhar os nomes…</p></div>';
+      var nm=document.getElementById('nm'),st=document.getElementById('st'),slot=document.getElementById('slot');
+      var N=RM?3:24,k=0,last='';
+      function msg(k){return k<8?'A embrulhar os nomes…':k<15?'A baralhar…':k<N-1?'Está quase…':'E o sorteado é…'}
+      function tick(){
+        var name;
+        if(k>=N-1){name=target}else{do{name=pool[Math.floor(Math.random()*pool.length)]}while(name===last&&pool.length>1)}
+        last=name;nm.textContent=name;st.textContent=msg(k);
+        if(k>=N-4)slot.classList.remove('fast');
+        if(k>=N-1){setTimeout(reveal,RM?300:1400);return}
+        var d=RM?250:55+k*k*1.25+(k>N-5?160:0);k++;setTimeout(tick,d);
+      }
+      tick();
+    }
+    function reveal(){
+      var meta=[];if(o.b)meta.push('Orçamento: '+esc(o.b));if(o.d)meta.push('Troca de prendas: '+esc(fmtDate(o.d)));
+      app.innerHTML=
+        '<div class="ribbon"></div><div class="tag"><div class="for">'+esc(me)+', o teu amigo secreto é</div><div class="who">'+esc(target)+'</div>'+
+        (meta.length?'<div class="meta">'+meta.join('<br>')+'</div>':'')+'<div class="meta" style="margin-top:10px">Shhh… é segredo até ao dia da troca! 🤫</div></div>'+
+        '<button class="big ghost" id="again" type="button" style="color:#fff;border-color:rgba(255,255,255,.35)">Ver a roleta outra vez</button>';
+      document.getElementById('again').onclick=spin;
+      if(!RM)confetti();
+    }
+    function confetti(){
+      var c=document.createElement('div');c.className='confetti';c.setAttribute('aria-hidden','true');
+      var cols=['#B3262E','#E8B64C','#fff','#2E8B6F','#D8434B'],s='';
+      for(var i=0;i<44;i++){s+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;background:'+cols[i%cols.length]+';--dx:'+((Math.random()*160-80)|0)+'px;--rot:'+((Math.random()*720-360)|0)+'deg;animation-duration:'+(2.2+Math.random()*2.2).toFixed(1)+'s;animation-delay:'+(Math.random()*.6).toFixed(2)+'s"></i>'}
+      c.innerHTML=s;document.body.appendChild(c);setTimeout(function(){c.remove()},5200);
+    }
+    intro();
+  }
+
+  /* ---------- arranque ---------- */
+  function render(){S.view==='links'?links():setup()}
+  load();
+  var hash=(location.hash||'').replace(/^#/,'');
+  if(hash){
+    var o=dec(hash);
+    if(o)guest(o);
+    else app.innerHTML='<div class="ribbon"></div><h1><em>Ups</em>Link inválido</h1><p class="lead">Este link não está completo. Pede ao organizador para o enviar outra vez e copia-o inteiro.</p>';
+  }else render();
+})();
+</script>
+</body>
+</html>
