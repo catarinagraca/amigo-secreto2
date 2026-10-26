@@ -27,8 +27,8 @@ h2{font-size:1.35rem;font-weight:600;margin-bottom:12px;color:var(--ink)}
 .lead{color:#CFE2DC;max-width:44ch;margin:16px 0 26px}
 .card{background:var(--card);color:var(--ink);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
 label{display:block;font-weight:500;font-size:.9rem;margin-bottom:5px}
-input{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
-input:focus-visible,button:focus-visible,a.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+input:focus-visible,select:focus-visible,button:focus-visible,a.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:480px){.two{grid-template-columns:1fr}}
 button,a.btn{display:inline-block;font:inherit;font-weight:700;text-align:center;text-decoration:none;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;background:var(--red);color:var(--red-ink)}
@@ -86,28 +86,36 @@ button:disabled{opacity:.45;cursor:not-allowed}
   var URL_PUBLICO='https://catarinagraca.github.io/amigo-secreto2/';
   var BASE=URL_PUBLICO||location.href.split('#')[0];
   var app=document.getElementById('app'),KEY='amigo-secreto-natal-v2';
-  var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},view:'setup'};
+  var S={people:[],group:'',budget:'',date:'',seed:0,sig:'',opened:{},meName:'',pickName:'',view:'setup'};
   var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var sn=document.getElementById('snow'),h='';
   for(var i=0;i<28;i++){h+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;--dx:'+((Math.random()*80-40)|0)+'px;width:'+(3+Math.random()*5).toFixed(1)+'px;height:'+(3+Math.random()*5).toFixed(1)+'px;animation-duration:'+(9+Math.random()*12).toFixed(1)+'s;animation-delay:-'+(Math.random()*20).toFixed(1)+'s"></i>'}
   sn.innerHTML=h;
 
-  function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&Array.isArray(o.people)){['people','group','budget','date','seed','sig','opened'].forEach(function(k){if(o[k]!==undefined)S[k]=o[k]})}}}catch(e){}}
-  function save(){try{localStorage.setItem(KEY,JSON.stringify({people:S.people,group:S.group,budget:S.budget,date:S.date,seed:S.seed,sig:S.sig,opened:S.opened}))}catch(e){}}
+  function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&Array.isArray(o.people)){['people','group','budget','date','seed','sig','opened','meName','pickName'].forEach(function(k){if(o[k]!==undefined)S[k]=o[k]})}}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({people:S.people,group:S.group,budget:S.budget,date:S.date,seed:S.seed,sig:S.sig,opened:S.opened,meName:S.meName,pickName:S.pickName}))}catch(e){}}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function fmtDate(d){var p=(d||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d}
 
   // sorteio determinístico: mesma semente + mesmos nomes = mesmo resultado para todos
   function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-  function perm(n,seed){ // uma única volta: ninguém tira o próprio nome
-    var r=rng(seed),a=[],i,j,t;for(i=0;i<n;i++)a.push(i);
+  function perm(n,seed,f){ // uma única volta: ninguém tira o próprio nome
+    var r=rng(seed),a=[],i,j,t,m=[];
+    for(i=0;i<n;i++)a.push(i);
+    if(f&&f[0]!==f[1]&&f[0]<n&&f[1]<n){ // o administrador escolheu f[0] -> f[1]
+      var rest=a.filter(function(x){return x!==f[0]&&x!==f[1]});
+      for(i=rest.length-1;i>0;i--){j=Math.floor(r()*(i+1));t=rest[i];rest[i]=rest[j];rest[j]=t}
+      a=[f[0],f[1]].concat(rest);
+      for(i=0;i<n;i++)m[a[i]]=a[(i+1)%n];return m;
+    }
     for(i=n-1;i>0;i--){j=Math.floor(r()*i);t=a[i];a[i]=a[j];a[j]=t}
-    var m=[];for(i=0;i<n;i++)m[a[i]]=a[(i+1)%n];return m;
+    for(i=0;i<n;i++)m[a[i]]=a[(i+1)%n];return m;
   }
   function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
   function dec(c){try{c=c.replace(/-/g,'+').replace(/_/g,'/');while(c.length%4)c+='=';var o=JSON.parse(decodeURIComponent(escape(atob(c))));return o&&Array.isArray(o.n)&&typeof o.i==='number'&&o.n[o.i]!==undefined?o:null}catch(e){return null}}
-  function link(i){return BASE+'#'+enc({g:S.group,n:S.people.map(function(p){return p.name}),s:S.seed,i:i,b:S.budget,d:S.date})}
+  function fixPair(){var a=S.people.map(function(p){return p.name}),x=a.indexOf(S.meName),y=a.indexOf(S.pickName);return(x>=0&&y>=0&&x!==y)?[x,y]:null}
+  function link(i){var o={g:S.group,n:S.people.map(function(p){return p.name}),s:S.seed,i:i,b:S.budget,d:S.date},f=fixPair();if(f)o.f=f;return BASE+'#'+enc(o)}
   function msg(i){
     var p=S.people[i],g=S.group;
     var subj='🎄 Foste adicionado ao Amigo Secreto'+(g?' – '+g:'');
@@ -128,13 +136,14 @@ button:disabled{opacity:.45;cursor:not-allowed}
   /* ---------- organizador ---------- */
   function setup(){
     app.innerHTML=
-      '<div class="ribbon"></div><h1><em>Natal da equipa</em>Amigo Secreto</h1>'+
+      '<div class="ribbon"></div><h1><em>Administrador</em>Amigo Secreto</h1>'+
       '<p class="lead">Junta a equipa e envia um convite a cada pessoa. O sorteio só acontece quando cada uma abrir o seu link, e tu também não vês o resultado.</p>'+
       '<div class="card"><h2>Quem participa</h2><div class="two">'+
         '<div><label for="nm">Nome</label><input id="nm" autocomplete="off"></div>'+
         '<div><label for="em">Email</label><input id="em" type="email" inputmode="email" autocomplete="off"></div></div>'+
         '<button class="big gold" id="add" type="button">Adicionar à lista</button><p class="err hidden" id="err"></p>'+
         '<ul class="people" id="ppl"></ul><p class="hint" id="cnt"></p></div>'+
+      '<div class="card"><h2>Só para o administrador</h2><p class="hint" style="margin:0 0 12px">Escolhe quem és e, se quiseres, com quem queres ficar. Os restantes continuam a ser sorteados ao acaso.</p><div class="two"><div><label for="me">Quem és tu?</label><select id="me"></select></div><div><label for="pk">Quero ficar com</label><select id="pk"></select></div></div></div>'+
       '<div class="card"><h2>Detalhes do convite</h2><div class="two">'+
         '<div><label for="gp">Nome do grupo</label><input id="gp" placeholder="Ex.: Equipa Staffing" value="'+esc(S.group)+'"></div>'+
         '<div><label for="bg">Orçamento</label><input id="bg" placeholder="Ex.: 15 €" value="'+esc(S.budget)+'"></div></div>'+
@@ -155,7 +164,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
     document.getElementById('em').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();add()}};
     [['gp','group'],['bg','budget'],['dt','date']].forEach(function(f){document.getElementById(f[0]).oninput=function(e){S[f[1]]=e.target.value;save()}});
     document.getElementById('go').onclick=function(){
-      var sig=JSON.stringify(S.people.map(function(p){return p.name}));
+      var sig=JSON.stringify([S.people.map(function(p){return p.name}),fixPair()]);
       if(!S.seed||S.sig!==sig){S.seed=(Math.random()*4294967295)>>>0||1;S.sig=sig;S.opened={}}
       save();S.view='links';render();window.scrollTo(0,0);
     };
@@ -166,6 +175,19 @@ button:disabled{opacity:.45;cursor:not-allowed}
     l.querySelectorAll('.x').forEach(function(b){b.onclick=function(){S.people.splice(+b.dataset.i,1);save();people()}});
     document.getElementById('cnt').textContent=n+(n===1?' participante':' participantes')+(n<3?'. São precisas pelo menos 3 pessoas.':'.');
     document.getElementById('go').disabled=n<3;
+    fillSel();
+  }
+  function fillSel(){
+    var me=document.getElementById('me'),pk=document.getElementById('pk');if(!me||!pk)return;
+    var names=S.people.map(function(p){return p.name});
+    if(names.indexOf(S.meName)<0)S.meName='';
+    if(names.indexOf(S.pickName)<0||S.pickName===S.meName)S.pickName='';
+    function opts(list,sel,first){return '<option value="">'+first+'</option>'+list.map(function(n){return '<option value="'+esc(n)+'"'+(n===sel?' selected':'')+'>'+esc(n)+'</option>'}).join('')}
+    me.innerHTML=opts(names,S.meName,'Não escolhi');
+    pk.innerHTML=opts(names.filter(function(n){return n!==S.meName}),S.pickName,'Sorteio normal (ao acaso)');
+    pk.disabled=!S.meName;
+    me.onchange=function(){S.meName=me.value;if(S.pickName===S.meName)S.pickName='';save();fillSel()};
+    pk.onchange=function(){S.pickName=pk.value;save()};
   }
   function links(){
     var done=Object.keys(S.opened).length,n=S.people.length;
@@ -188,7 +210,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
   /* ---------- convidado ---------- */
   function guest(o){
-    var me=o.n[o.i],p=perm(o.n.length,o.s),target=o.n[p[o.i]],pool=o.n.filter(function(x,k){return k!==o.i});
+    var me=o.n[o.i],p=perm(o.n.length,o.s,o.f),target=o.n[p[o.i]],pool=o.n.filter(function(x,k){return k!==o.i});
     function intro(){
       app.innerHTML=
         '<div class="ribbon"></div><h1><em>'+esc(o.g||'Natal da equipa')+'</em>Amigo Secreto</h1>'+
@@ -233,14 +255,17 @@ button:disabled{opacity:.45;cursor:not-allowed}
   }
 
   /* ---------- arranque ---------- */
+  function landing(){app.innerHTML='<div class="ribbon"></div><h1><em>Natal da equipa</em>Amigo Secreto</h1><p class="lead">Abre o link pessoal que recebeste por email para sortear e descobrir o teu amigo secreto. 🎁</p><div class="stage"><div class="gift" aria-hidden="true">🎁</div></div>'}
   function render(){S.view==='links'?links():setup()}
   load();
   var hash=(location.hash||'').replace(/^#/,'');
-  if(hash){
+  window.addEventListener('hashchange',function(){location.reload()});
+  if(hash==='admin')render();
+  else if(hash){
     var o=dec(hash);
     if(o)guest(o);
     else app.innerHTML='<div class="ribbon"></div><h1><em>Ups</em>Link inválido</h1><p class="lead">Este link não está completo. Pede ao organizador para o enviar outra vez e copia-o inteiro.</p>';
-  }else render();
+  }else landing();
 })();
 </script>
 </body>
